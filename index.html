@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ANON</title>
+    <!-- Add Font Awesome stylesheet -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Favicon representing the letter A -->
+    <link rel="icon" href="https://www.gstatic.com/webp/gallery3/2.png">
+</head>
+<body style="background-color: #d2d9d4; font-family: Consolas, monospace;">
+    <div class="container">
+        <div class="centered-content">
+            <div class="animate-characters">
+                <h1 class="animated-characters">ANON</h1>
+            </div>
+            <form action="#" method="POST" id="textForm">
+                <div class="post-input-container">
+                    <textarea id="text" name="text" rows="4" cols="30" class="modern-textarea" maxlength="125" oninput="updateCharCount()"></textarea>
+                    <p id="charCount" class="char-count">125 characters remaining</p>
+                    <button id="postButton" class="post-button"><i class="fas fa-paper-plane" style="color: #57B846;"></i></button>
+                </div>
+                <p id="errorText" style="color: red; display: none;">Please enter text before submitting.</p>
+            </form>
+            
+            <h2 style="color: #44107a;">Previous Posts</h2>
+            <ul id="historyList"></ul>
+        </div>
+    </div>
+    
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .centered-content {
+            text-align: center;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .post-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .post-button:hover {
+            transform: scale(1.1);
+        }
+
+        .post-input-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .modern-textarea {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            font-size: 14px;
+            background-color: #f8f8f8; /* Off-white color */
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        .modern-textarea:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+
+        .char-count {
+            position: absolute;
+            bottom: -10px;
+            right: 60px;
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        .animate-characters {
+            position: relative;
+            display: inline-block;
+            font-size: 30px; /* Updated font size */
+        }
+
+        .animated-characters {
+            text-transform: uppercase;
+            background-image: linear-gradient(
+                -225deg,
+                #231557 0%,
+                #44107a 29%,
+                #ff1361 67%,
+                #fff800 100%
+            );
+            background-size: auto auto;
+            background-clip: border-box;
+            background-size: 200% auto;
+            color: #fff;
+            background-clip: text;
+            text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textclip 2s linear infinite;
+        }
+
+        @keyframes textclip {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Additional styling for posts */
+        #historyList {
+            list-style: none;
+            padding: 0;
+        }
+
+        .post-item-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f2f2f2; /* Unique color for posts */
+            border-radius: 5px;
+            word-wrap: break-word; /* Wrap text if it's longer than the post width */
+            max-width: 300px; /* Set a fixed size for each post */
+        }
+
+        .post-text {
+            flex: 1;
+            word-wrap: break-word; /* Wrap text if it's longer than the post width */
+            max-width: 300px; /* Set a fixed size for each post */
+        }
+
+        .interaction-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+
+        .interaction-buttons button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px; /* Default font size */
+            color: #aaa;
+            margin: 5px;
+            transition: color 0.2s, font-size 0.2s; /* Adding transition for font size change */
+        }
+
+        /* Increase font size for like and dislike buttons */
+        .interaction-buttons button.thumbs-up,
+        .interaction-buttons button.thumbs-down {
+            font-size: 13px; /* Adjust font size to your preference */
+        }
+        
+        .interaction-buttons button.thumbs-down:hover {
+            color: red;
+        }
+
+        .interaction-buttons button.thumbs-up.clicked,
+        .interaction-buttons button.thumbs-down.clicked {
+            color: #57b846;
+        }
+
+        .interaction-buttons button.thumbs-up.clicked {
+            color: green;
+        }
+
+        .interaction-buttons button.thumbs-down.clicked {
+            color: red;
+        }
+
+        .interaction-buttons button.thumbs-up:hover {
+            color: green;
+        }
+
+        .interaction-buttons button.thumbs-down:hover {
+            color: red;
+        }
+
+        /* Add line separator after each post */
+        .post-item-container:not(:last-child) {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+    
+    <script>
+        const textForm = document.getElementById("textForm");
+        const historyList = document.getElementById("historyList");
+        const charCount = document.getElementById("charCount");
+        const history = [];
+        const postButton = document.getElementById("postButton");
+        const errorText = document.getElementById("errorText");
+        
+        postButton.addEventListener("click", function(event) {
+            event.preventDefault();
+
+            const enteredText = textForm.text.value.trim(); // Trim whitespace
+            
+            if (enteredText === "") {
+                errorText.style.display = "block";
+                return;
+            }
+            
+            errorText.style.display = "none"; // Hide error message
+            history.unshift({ text: enteredText, interaction: null }); // Add to the beginning of the array
+            
+            // Clear the textarea
+            textForm.text.value = "";
+            charCount.textContent = "125 characters remaining";
+            
+            updateHistoryList();
+        });
+        
+        function updateCharCount() {
+            const maxLength = 125;
+            const remainingChars = maxLength - textForm.text.value.length;
+            charCount.textContent = `${remainingChars} characters remaining`;
+        }
+
+        function updateHistoryList() {
+            historyList.innerHTML = ""; // Clear previous list
+            
+            history.forEach((post, index) => {
+                const listItem = document.createElement("li");
+                listItem.className = "post-item-container";
+                const textItem = document.createElement("p");
+                textItem.className = "post-text";
+                textItem.textContent = post.text;
+                
+                const interactionKey = "interaction_" + index;
+                const isLiked = post.interaction === "liked";
+                const isDisliked = post.interaction === "disliked";
+                
+                const interactionButtons = document.createElement("div");
+                interactionButtons.className = "interaction-buttons";
+                
+                const thumbsUpButton = document.createElement("button");
+                thumbsUpButton.innerHTML = '<i class="fas fa-rocket"></i> ' + (isLiked ? 1 : 0);
+                thumbsUpButton.id = "thumbsUpButton"; // Set a unique ID
+                thumbsUpButton.className = "thumbs-up";
+                if (isLiked) {
+                    thumbsUpButton.classList.add("clicked");
+                }
+                thumbsUpButton.addEventListener("click", function() {
+                    if (isLiked) {
+                        post.interaction = null;
+                        localStorage.removeItem(interactionKey);
+                    } else {
+                        post.interaction = "liked";
+                        localStorage.setItem(interactionKey, "liked");
+                        if (isDisliked) {
+                            localStorage.removeItem("disliked_" + index);
+                        }
+                    }
+                    updateHistoryList();
+                });
+                
+                const thumbsDownButton = document.createElement("button");
+                thumbsDownButton.innerHTML = '<i class="fas fa-compress-alt"></i> ' + (isDisliked ? 1 : 0);
+                thumbsDownButton.id = "thumbsDownButton"; // Set a unique ID
+                thumbsDownButton.className = "thumbs-down";
+                if (isDisliked) {
+                    thumbsDownButton.classList.add("clicked");
+                }
+                thumbsDownButton.addEventListener("click", function() {
+                    if (isDisliked) {
+                        post.interaction = null;
+                        localStorage.removeItem(interactionKey);
+                    } else {
+                        post.interaction = "disliked";
+                        localStorage.setItem(interactionKey, "disliked");
+                        if (isLiked) {
+                            localStorage.removeItem("liked_" + index);
+                        }
+                    }
+                    updateHistoryList();
+                });
+                
+                interactionButtons.appendChild(thumbsUpButton);
+                interactionButtons.appendChild(thumbsDownButton);
+                
+                listItem.appendChild(textItem);
+                listItem.appendChild(interactionButtons);
+                
+                historyList.appendChild(listItem);
+            });
+        }
+    </script>
+</body>
+</html>
